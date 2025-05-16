@@ -1,0 +1,13 @@
+{
+  "[GF]": ["odd_multiplier", "complement_class_support", "loevinger", "confirmed_confidence_causal", "confidence_causal", "odds_ratio", "j_measure", "confidence"],
+  "[GF-A]": ["odd_multiplier", "complement_class_support", "loevinger", "confirmed_confidence_causal", "confidence_causal", "j_measure", "confidence"],
+  "[TW]": ["support", "prevalence", "k_measure", "least_contradiction", "confidence", "tic", "leverage", "dir", "loevinger", "odds_ratio", "added_value", "accuracy", "lift", "j_measure", "recall", "specificity", "conditional_entropy", "coverage"],
+  "[TW-A]": ["prevalence", "k_measure", "least_contradiction", "confidence", "tic", "leverage", "dir", "loevinger", "added_value", "j_measure", "recall", "specificity", "conditional_entropy", "coverage"],
+  "[C1]": ["added_value", "complement_class_support", "confidence", "confidence_causal", "confirm_causal", "confirmed_confidence_causal", "dir", "leverage", "lift", "loevinger", "normalized_mutual_information", "odd_multiplier", "one_way_support", "putative_causal_dependency", "tic"],
+  "[C1-A]": ["added_value", "complement_class_support", "confidence", "confidence_causal", "confirm_causal", "confirmed_confidence_causal", "dir", "leverage", "loevinger", "normalized_mutual_information", "odd_multiplier", "one_way_support", "putative_causal_dependency", "tic"],
+  "[CBA]": ["confidence", "support"],
+  "[G1]": ["complement_class_support", "confidence", "confidence_causal", "confirmed_confidence_causal", "dir", "loevinger", "odd_multiplier", "tic"],
+  "[G2]": ["added_value", "lift", "one_way_support", "putative_causal_dependency"],
+  "[G3]": ["complement_class_support", "confidence", "confidence_causal", "confirmed_confidence_causal", "dir", "leverage", "loevinger", "odd_multiplier", "tic"],
+  "[G4]": ["added_value", "lift", "normalized_mutual_information", "one_way_support", "putative_causal_dependency"]
+}
