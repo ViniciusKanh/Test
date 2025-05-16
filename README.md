@@ -6,9 +6,9 @@ MARCA is a toolkit for classification based on association rules. It provides a 
 
 ## Features
 
-- **Modular Design**: Choose different algorithms for rule generation, pruning, and classification
-- **Flexible Rule Generation**: Support for various association rule mining algorithms
-- **Customizable Rule Selection**: Multiple strategies for selecting the most relevant rules
+- **Modular Design**: Choose different algorithms for rule extraction, pruning, and classification
+- **Flexible Rule Generation**: Support for various association rule mining algorithms (like Apriori)
+- **Customizable Pipelines**: Multiple strategies for combining different components
 - **Interpretable Results**: Classification models based on readable and understandable rules
 - **Extensible Framework**: Easy integration of new algorithms and techniques
 
@@ -25,7 +25,7 @@ pip install marca
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/marca.git
+git clone https://github.com/marcaresearch/marca.git
 cd marca
 
 # Install in development mode
@@ -34,22 +34,45 @@ pip install -e .
 
 ## Usage
 
-```python
-from marca import MARCA
+Basic example of using MARCA with Apriori rule extraction:
 
-# Initialize the classifier with desired components
-classifier = MARCA(
-    extraction='apriori',
-    ranking='chi_square',
-    pruning='chi_square',
-    prediction='weighted_voting'
-)
+```python
+import marca
+
+# Extract association rules using Apriori
+extr = marca.extract.Apriori(support=0.1, confidence=0, max_len=5, remove_redundant=False)
+rules = extr(x_train, y_train)
+
+# Create and configure a modular classifier
+clf = marca.ModularClassifier(rules=rules)
 
 # Train the classifier
-classifier.fit(X_train, y_train)
+clf.fit(x_train, y_train)
 
-# Make predictions
-predictions = classifier.predict(X_test)
+# Make predictions and evaluate
+score = clf.score(x_test, y_test)
+predictions = clf.predict(x_test)
+```
+
+Using pipelines for experimentation:
+
+```python
+from presets.pipelines import load_pipeline
+
+# Load a predefined pipeline configuration
+for pipeline in load_pipeline('default').get():
+    # Apply pipeline parameters to the classifier
+    clf.set_params(**pipeline.get_params())
+    clf.fit(x_train, y_train)
+    print(clf.score(x_test, y_test))
+```
+
+## Command Line Interface
+
+MARCA also provides a command-line interface for running experiments:
+
+```bash
+python main.py --dataset balanced --pipeline default --verbose --workers 1
 ```
 
 ## Documentation
@@ -65,23 +88,18 @@ Detailed documentation is available at [docs/](docs/). This includes:
 
 ```
 marca/
-├── core/            # Core framework components
-├── preprocessing/   # Data preprocessing algorithms
-├── extraction/      # Association rule mining algorithms
-├── ranking/         # Ranking algorithms
-├── pruning/         # Rule pruning and selection
-├── prediction/      # Rule prediction step
-├── classifiers/     # Traditional classifiers already implemented
-├── utils/           # Utility functions and helpers
-examples/            # Example notebooks and scripts
-├── tests/               # Test files
-├── LICENSE              # License file
-├── setup.py             # Setup file
-├── .gitignore           # Git ignore file
-├── .pre-commit-config.yaml  # Pre-commit configuration
-├── .github/             # GitHub configuration
-├── docs/                # Documentation
-└── README.md            # This file
+├── marca/           # Core package
+│   ├── extract/     # Rule extraction algorithms
+│   ├── associative_classifier/ # Classifier implementations
+│   └── ...          # Other modules
+├── presets/         # Pipeline and experiment presets
+├── tests/           # Test files
+├── examples/        # Example notebooks and scripts
+├── LICENSE          # License file
+├── setup.py         # Setup file
+├── .gitignore       # Git ignore file
+├── docs/            # Documentation
+└── README.md        # This file
 ```
 
 ## Contributing
