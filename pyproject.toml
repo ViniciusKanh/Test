@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marca"
+version = "0.0.1"
+description = "Modular Association Rule for Classification Algorithms (MARCA)"
+readme = "README.md"
+authors = [
+    {name = "Maicondalllg", email = "maicon.dallagnol@unesp.br"}
+]
+requires-python = ">=3.11"
+dependencies = [
+    "keel-ds>=0.2.4",
+    "numpy>=2.1.0",
+    "pandas>=2.2.2",
+    "pyfim>=6.28",
+    "rich>=13.8.0",
+    "scikit-learn>=1.5.1",
+    "scipy>=1.14.1",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/maicondalllg/marca"
+"Bug Tracker" = "https://github.com/maicondalllg/marca/issues"
+
+[tool.setuptools]
+packages = ["marca"]
