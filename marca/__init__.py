@@ -7,7 +7,7 @@ import marca.extract
 import marca.associative_classifier
 import marca.data_structures
 import marca.interest_measures
-from marca.associative_classifier import MARCA
+from marca.associative_classifier import ModularClassifier
 from marca.data_structures import CAR as CAR
 from marca.data_structures import CARs
 from marca.pipeline import Pipeline
