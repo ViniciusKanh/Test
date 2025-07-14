@@ -5,3 +5,4 @@ pyfim==6.28
 rich==13.8.0
 scikit_learn==1.5.1
 scipy==1.14.1
+skrebate==0.62

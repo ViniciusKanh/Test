@@ -7,6 +7,7 @@ import marca.extract
 import marca.associative_classifier
 import marca.data_structures
 import marca.interest_measures
+import marca.feature_selection
 from marca.associative_classifier import ModularClassifier
 from marca.data_structures import CAR as CAR
 from marca.data_structures import CARs
@@ -21,6 +22,7 @@ __all__ = [
     "associative_classifier",
     "data_structures",
     "interest_measures",
+    "feature_selection",
     "CAR",
     "CARs",
     "Pipeline"
