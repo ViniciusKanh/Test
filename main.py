@@ -20,11 +20,19 @@ if __name__ == "__main__":
             x_train, y_train, x_test, y_test = data_fold
             support, maxlen = params["support"], params["maxlen"]
 
-            extr = marca.extract.Apriori(support=support, confidence=0, max_len=maxlen, remove_redundant=False)
-            rules = extr(x_train, y_train)
-            clf = marca.ModularClassifier(rules=rules)
-
             for pipeline in load_pipeline(args.pipeline).get():
-                clf.set_params(**pipeline.get_params())
-                clf.fit(x_train, y_train)
-                print(clf.score(x_test, y_test))
+                params = pipeline.get_params()
+                selector = params.pop("interest_measures_selection", None)
+                if selector is not None:
+                    selector.fit(x_train, y_train)
+                    x_train_fs = selector.transform(x_train)
+                    x_test_fs = selector.transform(x_test)
+                else:
+                    x_train_fs, x_test_fs = x_train, x_test
+
+                extr = marca.extract.Apriori(support=support, confidence=0, max_len=maxlen, remove_redundant=False)
+                rules = extr(x_train_fs, y_train)
+                clf = marca.ModularClassifier(rules=rules)
+                clf.set_params(**params)
+                clf.fit(x_train_fs, y_train)
+                print(clf.score(x_test_fs, y_test))
