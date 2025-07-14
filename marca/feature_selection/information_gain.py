@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.feature_selection import mutual_info_classif
-
 class IGSelector:
     def __init__(self, ratio: float = 0.5):
         self.name = "InformationGain"
@@ -19,4 +18,4 @@ class IGSelector:
 
     def fit_transform(self, X, y):
         self.fit(X, y)
-        return self.transform(X)
+        return self.transform(X) 
