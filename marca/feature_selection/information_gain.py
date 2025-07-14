@@ -19,3 +19,4 @@ class IGSelector:
     def fit_transform(self, X, y):
         self.fit(X, y)
         return self.transform(X)
+    
