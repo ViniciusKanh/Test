@@ -1,9 +1,12 @@
 import argparse
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
 import pandas as pd
 import numpy as np
 import marca
 import keel_ds as kd
 from presets.pipelines import load_pipeline
+from tqdm import tqdm
 
 
 def run_pipeline(pipeline, x_train, y_train, x_test, y_test, support, maxlen):
@@ -37,6 +40,12 @@ def main():
         default="results.xlsx",
         help="Output Excel file with results",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Number of processes to use for pipeline execution",
+    )
     args = parser.parse_args()
 
     preset_params = kd.load_preset("preset_for_apriori_10k")["data"]
@@ -52,18 +61,50 @@ def main():
     results = {name: [] for name in pipelines}
     index = []
 
-    for idx, dataset in enumerate(datasets, start=1):
+    for idx, dataset in enumerate(tqdm(datasets, desc="Datasets"), start=1):
         index.append(f"DS-{idx}")
         f1_scores = {name: [] for name in pipelines}
         for (x_train, y_train, x_test, y_test), params in zip(
             kd.load_data(dataset), preset_params[dataset]
         ):
             support, maxlen = params["support"], params["maxlen"]
-            for name, pipeline in pipelines.items():
-                f1 = run_pipeline(
-                    pipeline, x_train, y_train, x_test, y_test, support, maxlen
-                )
-                f1_scores[name].append(f1)
+            if args.workers > 1:
+                with ProcessPoolExecutor(max_workers=args.workers) as executor:
+                    futures = {
+                        executor.submit(
+                            run_pipeline,
+                            pipeline,
+                            x_train,
+                            y_train,
+                            x_test,
+                            y_test,
+                            support,
+                            maxlen,
+                        ): name
+                        for name, pipeline in pipelines.items()
+                    }
+                    for future in tqdm(
+                        as_completed(futures),
+                        total=len(futures),
+                        desc="Pipelines",
+                        leave=False,
+                    ):
+                        name = futures[future]
+                        f1_scores[name].append(future.result())
+            else:
+                for name, pipeline in tqdm(
+                    pipelines.items(), desc="Pipelines", leave=False
+                ):
+                    f1 = run_pipeline(
+                        pipeline,
+                        x_train,
+                        y_train,
+                        x_test,
+                        y_test,
+                        support,
+                        maxlen,
+                    )
+                    f1_scores[name].append(f1)
         for name in pipelines:
             results[name].append(np.mean(f1_scores[name]))
 
