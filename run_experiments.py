@@ -52,8 +52,8 @@ def main():
     results = {name: [] for name in pipelines}
     index = []
 
-    for dataset in datasets:
-        index.append(dataset)
+    for idx, dataset in enumerate(datasets, start=1):
+        index.append(f"DS-{idx}")
         f1_scores = {name: [] for name in pipelines}
         for (x_train, y_train, x_test, y_test), params in zip(
             kd.load_data(dataset), preset_params[dataset]
