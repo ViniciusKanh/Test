@@ -4,9 +4,6 @@ import time
 import pandas as pd
 from rich.table import Table
 import os
-import sys
-
-sys.path.insert(0, '../../../marca')
 def drop_cba_redudant(df):
     return df.drop(
         index=df.loc[
