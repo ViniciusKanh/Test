@@ -33,6 +33,29 @@ def run_pipeline(pipeline, x_train, y_train, x_test, y_test, support, maxlen):
     return f1
 
 
+def process_dataset(idx, dataset, params_dataset, pipelines):
+    """Run all pipelines for all folds of a dataset."""
+    f1_scores = {name: [] for name in pipelines}
+    for (x_train, y_train, x_test, y_test), params in zip(
+        kd.load_data(dataset), params_dataset
+    ):
+        support, maxlen = params["support"], params["maxlen"]
+        for name, pipeline in pipelines.items():
+            f1 = run_pipeline(
+                pipeline,
+                x_train,
+                y_train,
+                x_test,
+                y_test,
+                support,
+                maxlen,
+            )
+            f1_scores[name].append(f1)
+
+    means = {name: np.mean(scores) for name, scores in f1_scores.items()}
+    return idx, means
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run CBA experiments")
     parser.add_argument(
@@ -58,55 +81,43 @@ def main():
         "CBA_Ensemble": load_pipeline("cba_ensemble").get()[0],
     }
 
-    results = {name: [] for name in pipelines}
-    index = []
+    results_tmp = {name: {} for name in pipelines}
 
-    for idx, dataset in enumerate(tqdm(datasets, desc="Datasets"), start=1):
-        index.append(f"DS-{idx}")
-        f1_scores = {name: [] for name in pipelines}
-        for (x_train, y_train, x_test, y_test), params in zip(
-            kd.load_data(dataset), preset_params[dataset]
+    if args.workers > 1:
+        with ProcessPoolExecutor(max_workers=args.workers) as executor:
+            futures = {
+                executor.submit(
+                    process_dataset,
+                    idx,
+                    dataset,
+                    preset_params[dataset],
+                    pipelines,
+                ): idx
+                for idx, dataset in enumerate(datasets, start=1)
+            }
+            for future in tqdm(
+                as_completed(futures),
+                total=len(futures),
+                desc="Datasets",
+            ):
+                idx, row = future.result()
+                for name in pipelines:
+                    results_tmp[name][idx] = row[name]
+    else:
+        for idx, dataset in enumerate(
+            tqdm(datasets, desc="Datasets"), start=1
         ):
-            support, maxlen = params["support"], params["maxlen"]
-            if args.workers > 1:
-                with ProcessPoolExecutor(max_workers=args.workers) as executor:
-                    futures = {
-                        executor.submit(
-                            run_pipeline,
-                            pipeline,
-                            x_train,
-                            y_train,
-                            x_test,
-                            y_test,
-                            support,
-                            maxlen,
-                        ): name
-                        for name, pipeline in pipelines.items()
-                    }
-                    for future in tqdm(
-                        as_completed(futures),
-                        total=len(futures),
-                        desc="Pipelines",
-                        leave=False,
-                    ):
-                        name = futures[future]
-                        f1_scores[name].append(future.result())
-            else:
-                for name, pipeline in tqdm(
-                    pipelines.items(), desc="Pipelines", leave=False
-                ):
-                    f1 = run_pipeline(
-                        pipeline,
-                        x_train,
-                        y_train,
-                        x_test,
-                        y_test,
-                        support,
-                        maxlen,
-                    )
-                    f1_scores[name].append(f1)
-        for name in pipelines:
-            results[name].append(np.mean(f1_scores[name]))
+            _, row = process_dataset(
+                idx, dataset, preset_params[dataset], pipelines
+            )
+            for name in pipelines:
+                results_tmp[name][idx] = row[name]
+
+    index = [f"DS-{i}" for i in sorted(results_tmp[next(iter(results_tmp))])]
+    results = {
+        name: [results_tmp[name][i] for i in sorted(results_tmp[name])]
+        for name in pipelines
+    }
 
     df = pd.DataFrame(results, index=index)
     df.to_excel(args.output)
