@@ -1,0 +1,24 @@
+TESTE DE FRIEDMAN - RESULTADOS FINAIS
+==================================================
+
+Datasets analisados: 43
+Algoritmos: CBA, CBA_IG, CBA_ReliefF, CBA_Ensemble
+
+RANKINGS MÉDIOS (1 = melhor, 4 = pior):
+1º: CBA (rank: 1.9767)
+2º: CBA_Ensemble (rank: 2.0465)
+3º: CBA_ReliefF (rank: 2.6977)
+4º: CBA_IG (rank: 2.8837)
+
+TESTE OMNIBUS:
+Chi-squared: 17.8227
+F-statistic: 6.7330
+p-value: 3.00e-04
+CONCLUSÃO: Diferenças significativas detectadas
+
+TESTES POST-HOC:
+                   CBA    CBA_IG  CBA_ReliefF  CBA_Ensemble
+CBA                NaN  0.000472     0.014146      0.042868
+CBA_IG        0.000472       NaN     0.111850      0.000009
+CBA_ReliefF   0.014146  0.111850          NaN      0.000514
+CBA_Ensemble  0.042868  0.000009     0.000514           NaN
